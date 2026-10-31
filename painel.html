@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Painel · Brennu’s</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/dist/umd/supabase.js"></script>
+<link rel="manifest" href="manifest-painel.webmanifest">
+<meta name="theme-color" content="#0a0d0b">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="config.js"></script>
+<style>
+:root{--bg:#0a0d0b;--cd:#111613;--ln:#232b26;--tx:#f2f5f2;--mu:#8d9a91;--gr:#43d96b;--gd:#06210e;--rd:#ff8a80;color-scheme:dark;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.45 Barlow,system-ui,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+#app{max-width:680px;margin:0 auto;padding:16px 16px 48px}
+h1{font:700 52px/1 UnifrakturCook,serif;margin:0 0 6px}h2{font-size:22px;text-transform:capitalize;margin:18px 0 10px}
+.mu{color:var(--mu)}.err{color:var(--rd);min-height:22px;margin:8px 0}
+.box{max-width:380px;margin:12vh auto 0}.box input{margin:6px 0}
+input{width:100%;font:500 16px Barlow,sans-serif;background:var(--cd);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:13px}
+.btn{font:600 15px Barlow,sans-serif;background:var(--cd);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px 16px;cursor:pointer}
+.btn.gr{background:var(--gr);border-color:var(--gr);color:var(--gd);width:100%;margin-top:6px}
+.btn[disabled]{opacity:.5}
+:is(button,input,a):focus-visible{outline:2px solid var(--gr);outline-offset:2px}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--ln)}.hd b{display:block;font-size:20px}
+.nav{display:flex;gap:8px;margin-top:14px}.nav input{flex:1;min-width:0}
+.chips{display:flex;gap:8px;overflow-x:auto;margin-top:12px;padding-bottom:4px}
+.chip{font:500 14px Barlow,sans-serif;background:var(--cd);color:var(--tx);border:1px solid var(--ln);border-radius:999px;padding:7px 14px;cursor:pointer;white-space:nowrap}.chip.sel{background:var(--gr);border-color:var(--gr);color:var(--gd)}
+.tot{background:var(--cd);border:1px solid var(--ln);border-radius:12px;padding:12px 14px;color:var(--mu);margin-top:12px}
+.lst{display:flex;flex-direction:column;gap:10px}
+.ag{display:flex;gap:14px;background:var(--cd);border:1px solid var(--ln);border-left:4px solid var(--gr);border-radius:14px;padding:12px 14px}
+.ag.concluido{border-left-color:#6b7a70;opacity:.75}.ag.cancelado{border-left-color:var(--rd);opacity:.6}
+.tm{display:flex;flex-direction:column;min-width:52px}.tm b{font-size:20px}
+.in{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}.in a{color:var(--mu)}
+.st{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--gr);margin-top:2px}.cancelado .st{color:var(--rd)}.concluido .st{color:var(--mu)}
+.ac{display:flex;flex-direction:column;gap:6px;justify-content:center}
+.mini{font:600 13px Barlow,sans-serif;background:transparent;color:var(--gr);border:1px solid var(--gr);border-radius:8px;padding:7px 10px;cursor:pointer}.mini.dg{color:var(--rd);border-color:var(--rd)}
+
+.demo{background:#3a2f0b;color:#ffd866;border:1px solid #6b5a1c;border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:12px;text-align:center}
+.tabs{display:flex;gap:8px;margin-top:14px}.tab{flex:1;font:600 15px Barlow,sans-serif;background:var(--cd);color:var(--mu);border:1px solid var(--ln);border-radius:12px;padding:11px;cursor:pointer}.tab.sel{background:var(--gr);border-color:var(--gr);color:var(--gd)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.kp{background:var(--cd);border:1px solid var(--ln);border-radius:14px;padding:14px}.kp span{display:block;color:var(--mu);font-size:13px}.kp b{font-size:26px;line-height:1.2}
+.sec{background:var(--cd);border:1px solid var(--ln);border-radius:14px;padding:16px;margin-top:14px}.sec h3{margin:0 0 4px;font-size:18px}.sec p{margin:0 0 12px;color:var(--mu);font-size:14px}
+.hr{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;margin:8px 0;font-size:14px}.hl{color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ht{height:12px;background:#1b231e;border-radius:6px;overflow:hidden}.ht i{display:block;height:100%;background:var(--gr);border-radius:6px}.ht i.best{background:#7dff9c}.ht i.worst{background:var(--rd)}
+.vb{display:flex;align-items:flex-end;gap:4px;height:150px;overflow-x:auto;padding-bottom:2px}.vc{flex:1 0 12px;max-width:44px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;font-size:10px;color:var(--mu)}
+.vc i{display:block;width:100%;background:var(--gr);border-radius:4px 4px 0 0;min-height:2px}.vc span{height:12px;white-space:nowrap}
+.dest{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}.dest div{flex:1;min-width:130px;border-radius:12px;padding:10px 12px;background:#10241a;border:1px solid #1e4a30}.dest div.w{background:#2a1513;border-color:#5a2a26}.dest span{display:block;font-size:12px;color:var(--mu)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.76);display:flex;align-items:flex-end;justify-content:center;z-index:30}.mb{background:var(--cd);border:1px solid var(--ln);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:16px 16px 28px}
+.mh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.mh b{font-size:19px}.it{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--ln)}.it span{flex:1}.tot2{font-size:21px;font-weight:600;margin:12px 0}
+.mb label{display:block;color:var(--mu);font-size:14px;margin:14px 0 6px}.mb select,.sec select{width:100%;font:500 16px Barlow,sans-serif;background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px}
+@media (min-width:700px){.ov{align-items:center}.mb{border-radius:20px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var app=document.getElementById("app"),sb=null,me=null,BR=[],day=today(),flt="",view="ag",per="w0",timer=null,DEMO=false,DM=[],CAT={sv:[],pr:[]},DP=[["Balm",30,1],["Buxa",20,2],["Gel cola",15,3],["Home aromatico",199,4]];
+var DIAS=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"],PG={pix:"Pix",dinheiro:"Dinheiro",credito:"Crédito",debito:"Débito"};
+function $(i){return document.getElementById(i)}
+function el(g,c,t){var e=document.createElement(g);if(c)e.className=c;if(t!=null)e.textContent=t;return e}
+function hm(i){return new Date(i).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Bahia"})}
+function R(v){return Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+function today(){return new Date(Date.now()-10800000).toISOString().slice(0,10)}
+function shift(d,n){return new Date(Date.parse(d+"T12:00:00Z")+n*864e5).toISOString().slice(0,10)}
+function fmt(d){return new Date(d+"T12:00:00Z").toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long",timeZone:"UTC"})}
+function stop(){if(timer){clearInterval(timer);timer=null}}
+function msg(titulo,texto,botao,fn){app.textContent="";var b=el("div","box");b.appendChild(el("h1",null,titulo));b.appendChild(el("p","mu",texto));if(botao){var o=el("button","btn gr",botao);o.onclick=fn;b.appendChild(o)}app.appendChild(b)}
+
+/* ---------- dados de exemplo (só no modo demonstração) ---------- */
+function mkDemo(){
+  var seed=7;function rnd(){seed=(seed*16807)%2147483647;return seed/2147483647}
+  var SV=[["Cabelo",25,45],["Corte de segunda a quarta",20,30],["Barba",15,15],["Barbaterapia",28,45],["Luzes",45,45],["Cabelo + barba",30,60],["Luzes + cabelo + barba",75,60],["Cabelo + barba + platinado",120,195],["Hidratação",25,30],["Limpeza de pele",70,45],["Pigmentação",20,30]];
+  var BN=["Breno","João Paulo","LK","Alison Silva"],NM=["Carlos","Lucas","Pedro","Rafael","Mateus","Thiago","Gabriel","André","Bruno","Diego","Felipe","Igor"],PK=["pix","pix","dinheiro","credito","debito"];
+  var W=[0,.5,.7,.8,1,1.4,1.8],t=today(),nowMin=Math.floor(((Date.now()-10800000)%864e5)/6e4),out=[],id=0;
+  function z(n){return(n<10?"0":"")+n}function iso(d,m){return d+"T"+z(Math.floor(m/60))+":"+z(m%60)+":00-03:00"}
+  for(var i=-45;i<=5;i++){var d=shift(t,i),w=new Date(d+"T12:00:00Z").getUTCDay();if(!w)continue;var n=Math.round(W[w]*7+rnd()*3),busy={};
+    for(var j=0;j<n;j++){var k=Math.floor(rnd()*4),sv=SV[Math.floor(rnd()*SV.length)];if(sv[0].indexOf("segunda")>0&&w>3)sv=SV[0];
+      for(var a=0;a<6;a++){var s=540+30*Math.floor(rnd()*((1200-540-sv[2])/30+1)),ok=true;(busy[k]=busy[k]||[]).forEach(function(x){if(s<x[1]&&s+sv[2]>x[0])ok=false});
+        if(!ok)continue;busy[k].push([s,s+sv[2]]);
+        var past=i<0||(i==0&&s+sv[2]<nowMin),canc=past&&rnd()<.1;
+        out.push({id:"d"+(id++),starts_at:iso(d,s),ends_at:iso(d,s+sv[2]),status:canc?"cancelado":past?"concluido":"confirmado",payment:(past&&!canc)?PK[Math.floor(rnd()*PK.length)]:null,
+          client_name:NM[Math.floor(rnd()*NM.length)],client_phone:"(75) 9"+(8000+Math.floor(rnd()*1999))+"-"+(1000+Math.floor(rnd()*8999)),barber_id:"b"+(k+1),services:{name:sv[0],price:sv[1]},barbers:{name:BN[k]},appointment_items:(past&&!canc&&rnd()<.25)?[(function(){var p=DP[Math.floor(rnd()*DP.length)];return{id:"i"+(id++),name:p[0],price:p[1],qty:1,product_id:p[2]}})()]:[]});break}}}
+  return out}
+
+function total(a){return Number(a.services.price)+(a.appointment_items||[]).reduce(function(s,i){return s+Number(i.price)*i.qty},0)}
+function range(){var t=today(),wd=new Date(t+"T12:00:00Z").getUTCDay(),mon=shift(t,-((wd+6)%7)),a,b;
+  if(per=="w0"){a=mon;b=shift(mon,7)}else if(per=="w1"){a=shift(mon,-7);b=mon}else{a=shift(t,-(per-1));b=shift(t,1)}
+  var list=[];for(var d=a;d<b;d=shift(d,1)){if(new Date(d+"T12:00:00Z").getUTCDay())list.push(d)}
+  return{a:a,b:b,list:list,week:per=="w0"||per=="w1"}}
+function loadCat(cb){if(DEMO){cb();return}
+  sb.from("services").select("id,name,price").eq("active",true).order("name").then(function(a){CAT.sv=a.data||[];
+    sb.from("products").select("id,name,price,stock").eq("active",true).order("name").then(function(b){CAT.pr=b.data||[];cb()})})}
+function getOne(id){if(DEMO)return Promise.resolve({data:DM.filter(function(x){return x.id==id})[0]});
+  return sb.from("appointments").select("id,starts_at,ends_at,status,payment,client_name,client_phone,barber_id,services(name,price),barbers(name),appointment_items(id,name,price,qty,product_id)").eq("id",id).single()}
+function addI(id,prod,serv,qty){
+  if(DEMO){var a=DM.filter(function(x){return x.id==id})[0],it;
+    if(prod){var p=CAT.pr.filter(function(x){return x.id==prod})[0];if(p.stock<qty)return Promise.resolve({error:{message:"sem estoque"}});p.stock-=qty;it={product_id:p.id,name:p.name,price:p.price}}
+    else{var s=CAT.sv.filter(function(x){return x.id==serv})[0];it={product_id:null,name:s.name,price:s.price}}
+    it.id="i"+Date.now();it.qty=qty;a.appointment_items.push(it);return Promise.resolve({})}
+  return sb.rpc("add_item",{p_appt:id,p_product:prod,p_service:serv,p_qty:qty})}
+function remI(a,i){
+  if(DEMO){a.appointment_items=a.appointment_items.filter(function(x){return x.id!=i.id});var p=CAT.pr.filter(function(x){return x.id==i.product_id})[0];if(p)p.stock+=i.qty;return Promise.resolve({})}
+  return sb.rpc("remove_item",{p_item:i.id})}
+/* ---------- acesso aos dados ---------- */
+function getRows(a,b,bid){
+  if(DEMO){var A=Date.parse(a),B=Date.parse(b);return Promise.resolve({data:DM.filter(function(x){var s=Date.parse(x.starts_at);return s>=A&&s<B&&(!bid||x.barber_id==bid)&&(me.role=="owner"||x.barber_id==me.barber_id)}).sort(function(x,y){return Date.parse(x.starts_at)-Date.parse(y.starts_at)})})}
+  var q=sb.from("appointments").select("id,starts_at,ends_at,status,payment,client_name,client_phone,barber_id,services(name,price),barbers(name),appointment_items(id,name,price,qty,product_id)").gte("starts_at",a).lt("starts_at",b).order("starts_at");
+  if(bid)q=q.eq("barber_id",bid);return q}
+function patch(id,p){
+  if(DEMO){DM.forEach(function(x){if(x.id==id)Object.assign(x,p)});return Promise.resolve({})}
+  return sb.from("appointments").update(p).eq("id",id)}
+
+/* ---------- entrada ---------- */
+function init(){
+  if(typeof supabase=="undefined"||typeof CFG=="undefined"||CFG.url.indexOf("COLE")>=0){DEMO=true;login();return}
+  sb=supabase.createClient(CFG.url,CFG.key);start()}
+function demoStart(role){DM=mkDemo();BR=[{id:"b1",name:"Breno"},{id:"b2",name:"João Paulo"},{id:"b3",name:"LK"},{id:"b4",name:"Alison Silva"}];
+  CAT={sv:[["Cabelo",25],["Barba",15],["Barbaterapia",28],["Luzes",45],["Hidratação",25],["Pezinho",7]].map(function(x,i){return{id:i+1,name:x[0],price:x[1]}}),pr:DP.map(function(p,i){return{id:p[2],name:p[0],price:p[1],stock:[8,5,2,3][i]}})};me=role=="owner"?{role:"owner",barber_id:null}:{role:"barber",barber_id:"b1",barbers:{name:"Breno"}};flt="";view="ag";shell()}
+function login(m){stop();app.textContent="";var b=el("div","box");b.appendChild(el("h1",null,"Brennu’s"));
+  if(DEMO){b.appendChild(el("p","mu","Painel da barbearia em modo demonstração. Todos os dados são de exemplo, só para você conhecer as telas."));
+    var d1=el("button","btn gr","Entrar como dono (vê todos os barbeiros)"),d2=el("button","btn gr","Entrar como barbeiro (vê só os dele)");d2.style.marginTop="10px";
+    d1.onclick=function(){demoStart("owner")};d2.onclick=function(){demoStart("barber")};b.appendChild(d1);b.appendChild(d2);app.appendChild(b);return}
+  b.appendChild(el("p","mu","Painel da barbearia. Entre com seu e-mail e senha."));
+  var em=el("input");em.type="email";em.placeholder="E-mail";em.autocomplete="username";em.setAttribute("aria-label","E-mail");
+  var pw=el("input");pw.type="password";pw.placeholder="Senha";pw.autocomplete="current-password";pw.setAttribute("aria-label","Senha");
+  var er=el("p","err",m||""),bt=el("button","btn gr","Entrar");er.setAttribute("role","alert");
+  bt.onclick=function(){er.textContent="";bt.disabled=true;sb.auth.signInWithPassword({email:em.value.trim(),password:pw.value}).then(function(r){bt.disabled=false;if(r.error){er.textContent="E-mail ou senha incorretos.";return}start()})};
+  pw.onkeydown=function(e){if(e.key=="Enter")bt.click()};
+  [em,pw,er,bt].forEach(function(x){b.appendChild(x)});app.appendChild(b)}
+function out(){stop();me=null;flt="";if(DEMO){login();return}sb.auth.signOut().then(function(){login()})}
+function start(){sb.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(!s)return login();
+  sb.from("profiles").select("role,barber_id,barbers(name)").eq("user_id",s.user.id).maybeSingle().then(function(p){
+    if(p.error||!p.data){msg("Aguardando liberação","Seu usuário entrou, mas o dono ainda não liberou o seu acesso.","Sair",out);return}
+    me=p.data;
+    if(me.role=="owner")sb.from("barbers").select("id,name").eq("active",true).order("name").then(function(r){BR=r.data||[];shell()});
+    else shell()})})}
+
+/* ---------- telas ---------- */
+function go(d){day=d;$("dt").value=d;load()}
+function refresh(){if(view=="ag")load();else if(view=="rs")resumo();else produtos()}
+function shell(){
+  app.textContent="";
+  if(DEMO)app.appendChild(el("div","demo","MODO DEMONSTRAÇÃO · dados de exemplo, nada aqui é real"));
+  var h=el("div","hd"),t=el("div");t.appendChild(el("b",null,"Brennu’s"));
+  t.appendChild(el("span","mu",me.role=="owner"?"Dono · todos os barbeiros":"Barbeiro · "+((me.barbers&&me.barbers.name)||"")));
+  h.appendChild(t);var o=el("button","btn","Sair");o.onclick=out;h.appendChild(o);app.appendChild(h);
+  var tb=el("div","tabs");[["ag","Agenda"],["rs","Resumo"]].concat(me.role=="owner"?[["pr","Produtos"]]:[]).forEach(function(x){var c=el("button","tab"+(view==x[0]?" sel":""),x[1]);c.onclick=function(){view=x[0];shell()};tb.appendChild(c)});app.appendChild(tb);
+  if(me.role=="owner"&&view!="pr"){var f=el("div","chips");[{id:"",name:"Todos"}].concat(BR).forEach(function(b){var c=el("button","chip"+(flt==b.id?" sel":""),b.name);c.onclick=function(){flt=b.id;shell()};f.appendChild(c)});app.appendChild(f)}
+  if(view=="ag"){
+    var nav=el("div","nav"),a=el("button","btn","‹"),n=el("button","btn","›"),hj=el("button","btn","Hoje"),inp=el("input");
+    a.setAttribute("aria-label","Dia anterior");n.setAttribute("aria-label","Próximo dia");inp.type="date";inp.id="dt";inp.value=day;inp.setAttribute("aria-label","Escolher dia");
+    a.onclick=function(){go(shift(day,-1))};n.onclick=function(){go(shift(day,1))};hj.onclick=function(){go(today())};inp.onchange=function(){if(inp.value)go(inp.value)};
+    [a,inp,n,hj].forEach(function(x){nav.appendChild(x)});app.appendChild(nav);var nb=el("button","btn gr","+ Novo agendamento");nb.style.marginTop="10px";nb.onclick=novo;app.appendChild(nb);
+    var d=el("h2");d.id="dl";app.appendChild(d);var tt=el("div","tot");tt.id="tt";app.appendChild(tt);
+    var l=el("div","lst");l.id="lst";l.style.marginTop="12px";app.appendChild(l)}
+  else{if(view=="rs"){var pc=el("div","chips");[["w0","Esta semana"],["w1","Semana passada"],[30,"30 dias"],[90,"90 dias"]].forEach(function(n){var c=el("button","chip"+(per==n[0]?" sel":""),n[1]);c.onclick=function(){per=n[0];shell()};pc.appendChild(c)});app.appendChild(pc)}var r=el("div");r.id="rsv";app.appendChild(r)}
+  refresh();stop();timer=setInterval(refresh,view=="ag"?20000:60000)}
+
+function load(){
+  getRows(day+"T00:00:00-03:00",shift(day,1)+"T00:00:00-03:00",flt).then(function(r){var l=$("lst");if(!l)return;l.textContent="";$("dl").textContent=fmt(day);
+    if(r.error){if(/JWT|expired/i.test(r.error.message)){login("Sua sessão expirou. Entre de novo.");return}l.appendChild(el("p","err","Não foi possível carregar: "+r.error.message));return}
+    var rows=r.data||[],c=0,v=0,ok=0;
+    rows.forEach(function(a){if(a.status!="cancelado"){c++;v+=total(a)}if(a.status=="concluido")ok+=total(a);l.appendChild(card(a))});
+    if(!rows.length)l.appendChild(el("p","mu","Nenhum agendamento neste dia."));
+    $("tt").textContent=c+(c==1?" agendamento":" agendamentos")+" · previsto "+R(v)+" · concluído "+R(ok)})}
+
+function card(a){
+  var k=el("div","ag "+a.status),tm=el("div","tm");tm.appendChild(el("b",null,hm(a.starts_at)));tm.appendChild(el("span","mu",hm(a.ends_at)));k.appendChild(tm);
+  var d=el("div","in");d.appendChild(el("b",null,a.client_name));d.appendChild(el("span",null,a.services.name+" · "+R(total(a))));
+  (a.appointment_items||[]).forEach(function(i){d.appendChild(el("span","mu","+ "+i.name+(i.qty>1?" x"+i.qty:"")+" · "+R(Number(i.price)*i.qty)))});
+  if(me.role=="owner")d.appendChild(el("span","mu","Barbeiro: "+a.barbers.name));
+  var ph=(a.client_phone||"").replace(/\D/g,"");
+  if(ph.length>=10){var w=el("a",null,a.client_phone);w.href="https://wa.me/55"+ph;w.target="_blank";w.rel="noopener";d.appendChild(w)}
+  d.appendChild(el("span","st",{confirmado:"Confirmado",concluido:"Concluído"+(a.payment?" · pago no "+PG[a.payment]:""),cancelado:"Cancelado"}[a.status]));k.appendChild(d);
+  var ac=el("div","ac");
+  function base(){ac.textContent="";
+    if(a.status!="cancelado"){var cm=el("button","mini","Comanda");cm.onclick=function(){comanda(a)};ac.appendChild(cm)}
+    if(a.status=="confirmado"){var c1=el("button","mini","Concluir");c1.onclick=payMenu;ac.appendChild(c1);ac.appendChild(act("Cancelar",a.id,{status:"cancelado"},1));
+      if(ph.length>=10){var lb=el("a","mini","Lembrar");lb.style.textAlign="center";lb.style.textDecoration="none";lb.href="https://wa.me/55"+ph+"?text="+encodeURIComponent("Olá, "+a.client_name+"! Passando para lembrar do seu horário na Brennu’s: "+a.services.name+" às "+hm(a.starts_at)+". Até já!");lb.target="_blank";lb.rel="noopener";ac.appendChild(lb)}}
+    else if(a.status=="cancelado")ac.appendChild(act("Reabrir",a.id,{status:"confirmado",payment:null}));
+    else ac.appendChild(act("Reabrir",a.id,{status:"confirmado",payment:null}))}
+  function payMenu(){ac.textContent="";ac.appendChild(el("span","mu","Total "+R(total(a))+" · pago em:"));["pix","dinheiro","credito","debito"].forEach(function(p){ac.appendChild(act(PG[p],a.id,{status:"concluido",payment:p}))});var v=el("button","mini","Voltar");v.onclick=base;ac.appendChild(v)}
+  base();k.appendChild(ac);return k}
+function act(t,id,p,c){var b=el("button","mini"+(c?" dg":""),t);
+  b.onclick=function(){if(c&&!confirm("Cancelar este agendamento?"))return;b.disabled=true;
+    patch(id,p).then(function(r){if(r&&r.error)alert("Não foi possível alterar: "+r.error.message);load()})};
+  return b}
+
+/* ---------- resumo e gráficos ---------- */
+function agg(rows){
+  var o={rev:0,revP:0,done:0,pend:0,canc:0,all:rows.length,wd:[0,0,0,0,0,0,0],dd:{},bb:{},sv:{},pg:{},pr:{}};
+  rows.forEach(function(x){var p=total(x),loc=new Date(Date.parse(x.starts_at)-10800000),d=loc.toISOString().slice(0,10),w=loc.getUTCDay();
+    if(x.status=="cancelado"){o.canc++;return}
+    if(x.status=="concluido"){o.done++;o.rev+=p;o.wd[w]+=p;o.dd[d]=(o.dd[d]||0)+p;o.bb[x.barbers.name]=(o.bb[x.barbers.name]||0)+p;if(x.payment)o.pg[x.payment]=(o.pg[x.payment]||0)+p;
+      (x.appointment_items||[]).forEach(function(i){if(i.product_id){o.revP+=Number(i.price)*i.qty;o.pr[i.name]=(o.pr[i.name]||0)+i.qty}})}else o.pend+=p;
+    o.sv[x.services.name]=(o.sv[x.services.name]||0)+1});
+  return o}
+function hbar(it,f){var mx=Math.max.apply(null,it.map(function(i){return i[1]}).concat([1])),w=el("div");
+  it.forEach(function(i){var r=el("div","hr"),tr=el("div","ht"),fl=el("i");r.appendChild(el("span","hl",i[0]));fl.style.width=(i[1]/mx*100)+"%";if(i[2])fl.className=i[2];tr.appendChild(fl);r.appendChild(tr);r.appendChild(el("b",null,f(i[1])));w.appendChild(r)});return w}
+function vbar(it,f){var mx=Math.max.apply(null,it.map(function(i){return i[1]}).concat([1])),w=el("div","vb");w.setAttribute("role","img");w.setAttribute("aria-label","Faturamento por dia");
+  it.forEach(function(i){var c=el("div","vc"),b=el("i");b.style.height=Math.max(2,i[1]/mx*100)+"%";b.title=i[0]+": "+f(i[1]);c.appendChild(b);c.appendChild(el("span",null,i[3]||""));w.appendChild(c)});return w}
+function sec(t,s,n){var d=el("div","sec");d.appendChild(el("h3",null,t));if(s)d.appendChild(el("p",null,s));d.appendChild(n);return d}
+function kp(l,v){var d=el("div","kp");d.appendChild(el("span",null,l));d.appendChild(el("b",null,v));return d}
+function resumo(){
+  var t=today(),RG=range();
+  getRows(RG.a+"T00:00:00-03:00",RG.b+"T00:00:00-03:00",flt).then(function(r){var box=$("rsv");if(!box)return;box.textContent="";
+    if(r.error){box.appendChild(el("p","err","Não foi possível carregar: "+r.error.message));return}
+    var o=agg(r.data||[]);
+    if(!o.all){box.appendChild(el("p","mu","Ainda não há agendamentos neste período."));return}
+    var cs=el("div","cards");cs.appendChild(kp("Faturamento",R(o.rev)));cs.appendChild(kp("Atendimentos",String(o.done)));
+    cs.appendChild(kp("Ticket médio",o.done?R(o.rev/o.done):"R$ 0,00"));cs.appendChild(kp("Cancelamentos",Math.round(o.canc/o.all*100)+"%"));cs.appendChild(kp("Produtos vendidos",R(o.revP)));box.appendChild(cs);
+    // por dia
+    var days=RG.list.map(function(d,i){var w=new Date(d+"T12:00:00Z").getUTCDay();return[d.slice(8)+"/"+d.slice(5,7),o.dd[d]||0,"",RG.week?DIAS[w].slice(0,3):(RG.list.length<=14||i%5==0)?d.slice(8):""]});
+    box.appendChild(sec(RG.week?"Fechamento da semana":"Faturamento por dia",RG.week?"Segunda a sábado, atendimentos concluídos, com produtos e extras.":"Atendimentos concluídos. Passe o dedo para o lado se o período for longo.",vbar(days,R)));
+    // melhores e piores dias
+    var wk=[1,2,3,4,5,6].map(function(w){return[DIAS[w],o.wd[w],"",w]}),vals=wk.map(function(x){return x[1]}),mx=Math.max.apply(null,vals),mn=Math.min.apply(null,vals);
+    if(mx>0&&mx!=mn)wk.forEach(function(x){x[2]=x[1]==mx?"best":x[1]==mn?"worst":""});
+    var wn=el("div"),bt=wk.filter(function(x){return x[1]==mx})[0],wt=wk.filter(function(x){return x[1]==mn})[0];
+    if(mx>0&&mx!=mn){var dest=el("div","dest"),a1=el("div"),a2=el("div","w");a1.appendChild(el("span",null,"Melhor dia"));a1.appendChild(el("b",null,bt[0]+" · "+R(bt[1])));a2.appendChild(el("span",null,"Pior dia"));a2.appendChild(el("b",null,wt[0]+" · "+R(wt[1])));dest.appendChild(a1);dest.appendChild(a2);wn.appendChild(dest)}
+    wn.appendChild(hbar(wk,R));box.appendChild(sec("Melhores e piores dias da semana","Soma do faturamento no período.",wn));
+    if(me.role=="owner"&&!flt){var bl=Object.keys(o.bb).map(function(k){return[k,o.bb[k]]}).sort(function(a,b){return b[1]-a[1]});if(bl.length)box.appendChild(sec("Faturamento por barbeiro","",hbar(bl,R)))}
+    var sl=Object.keys(o.sv).map(function(k){return[k,o.sv[k]]}).sort(function(a,b){return b[1]-a[1]}).slice(0,6);box.appendChild(sec("Serviços mais pedidos","Quantidade de atendimentos.",hbar(sl,function(v){return v+"x"})));
+    var prl=Object.keys(o.pr).map(function(k){return[k,o.pr[k]]}).sort(function(a,b){return b[1]-a[1]});if(prl.length)box.appendChild(sec("Produtos mais vendidos","Quantidade vendida na comanda.",hbar(prl,function(v){return v+"x"})));
+    var pl=Object.keys(o.pg).map(function(k){return[PG[k],o.pg[k]]}).sort(function(a,b){return b[1]-a[1]});if(pl.length)box.appendChild(sec("Formas de pagamento","Quanto entrou em cada uma.",hbar(pl,R)))})}
+
+/* ---------- janelas: comanda, novo agendamento, produtos ---------- */
+function modal(titulo){var ov=el("div","ov");ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");var b=el("div","mb"),h=el("div","mh");h.appendChild(el("b",null,titulo));
+  var x=el("button","btn","Fechar");function fecha(){ov.remove();refresh()}x.onclick=fecha;h.appendChild(x);b.appendChild(h);var c=el("div");b.appendChild(c);ov.appendChild(b);ov.onclick=function(e){if(e.target==ov)fecha()};document.body.appendChild(ov);return c}
+function lab(c,t){c.appendChild(el("label",null,t))}
+function sel(items,f){var s=el("select");items.forEach(function(x){var o=el("option",null,f(x));o.value=x.id;s.appendChild(o)});return s}
+function comanda(a0){
+  var c=modal("Comanda · "+a0.client_name);
+  function draw(a){c.textContent="";
+    function lin(t,v,i){var r=el("div","it");r.appendChild(el("span",null,t));r.appendChild(el("b",null,R(v)));
+      if(i&&a.status!="cancelado"){var d=el("button","mini dg","Remover");d.onclick=function(){op(remI(a,i))};r.appendChild(d)}c.appendChild(r)}
+    lin(a.services.name+" (agendado)",Number(a.services.price));(a.appointment_items||[]).forEach(function(i){lin(i.name+(i.qty>1?" x"+i.qty:""),Number(i.price)*i.qty,i)});
+    c.appendChild(el("p","tot2","Total: "+R(total(a))));
+    if(a.status=="cancelado"){c.appendChild(el("p","mu","Comanda cancelada."));return}
+    lab(c,"Serviço extra");var s1=sel(CAT.sv,function(x){return x.name+" · "+R(x.price)});c.appendChild(s1);
+    var b1=el("button","btn","Adicionar serviço");b1.style.marginTop="8px";b1.onclick=function(){op(addI(a.id,null,+s1.value,1))};c.appendChild(b1);
+    lab(c,"Produto");var s2=sel(CAT.pr,function(x){return x.name+" · "+R(x.price)+" · estoque "+x.stock});c.appendChild(s2);
+    var q=el("input");q.type="number";q.min=1;q.value=1;q.style.marginTop="8px";q.setAttribute("aria-label","Quantidade");c.appendChild(q);
+    var b2=el("button","btn","Adicionar produto");b2.style.marginTop="8px";b2.onclick=function(){op(addI(a.id,+s2.value,null,Math.max(1,+q.value||1)))};c.appendChild(b2);
+    function op(p){p.then(function(r){if(r&&r.error){alert(r.error.message.indexOf("estoque")>=0?"Sem estoque desse produto.":"Não foi possível: "+r.error.message);return}
+      loadCat(function(){getOne(a.id).then(function(g){if(g.data)draw(g.data)})})})}}
+  loadCat(function(){getOne(a0.id).then(function(g){draw(g.data||a0)})})}
+function novo(){
+  var c=modal("Novo agendamento");
+  loadCat(function(){
+    lab(c,"Serviço");var s=sel(CAT.sv,function(x){return x.name+" · "+R(x.price)});c.appendChild(s);
+    lab(c,"Barbeiro");var bs=me.role=="owner"?BR:[{id:me.barber_id,name:(me.barbers&&me.barbers.name)||"Eu"}],b=sel(bs,function(x){return x.name});c.appendChild(b);
+    lab(c,"Horário (dia "+fmt(day)+")");var t=el("input");t.type="time";t.step=900;t.value="09:00";c.appendChild(t);
+    lab(c,"Nome do cliente");var n=el("input");c.appendChild(n);lab(c,"WhatsApp (opcional)");var p=el("input");p.type="tel";c.appendChild(p);
+    var er=el("p","err");er.setAttribute("role","alert");c.appendChild(er);var go=el("button","btn gr","Agendar");c.appendChild(go);
+    go.onclick=function(){er.textContent="";if(n.value.trim().length<2){er.textContent="Digite o nome do cliente.";return}if(!t.value){er.textContent="Escolha o horário.";return}
+      var iso=day+"T"+t.value+":00-03:00",sv=CAT.sv.filter(function(x){return x.id==s.value})[0];go.disabled=true;
+      if(DEMO){var bn=bs.filter(function(x){return x.id==b.value})[0],st0=Date.parse(iso),mins=45;DM.push({id:"d"+Date.now(),starts_at:iso,ends_at:new Date(st0+mins*6e4).toISOString(),status:"confirmado",payment:null,client_name:n.value.trim(),client_phone:p.value,barber_id:b.value,services:{name:sv.name,price:sv.price},barbers:{name:bn.name},appointment_items:[]});c.parentNode.parentNode.remove();refresh();return}
+      sb.rpc("book_staff",{p_barber:b.value,p_service:+s.value,p_name:n.value.trim(),p_phone:p.value.trim(),p_start:iso}).then(function(r){go.disabled=false;
+        if(r.error){er.textContent=r.error.message.indexOf("ocupado")>=0?"Esse horário já está ocupado para esse barbeiro.":"Não foi possível agendar: "+r.error.message;return}
+        c.parentNode.parentNode.remove();refresh()})}})}
+function produtos(){
+  loadCat(function(){var box=$("rsv");if(!box)return;box.textContent="";
+    var sc=el("div","sec");sc.appendChild(el("h3",null,"Estoque de produtos"));sc.appendChild(el("p",null,"Cada produto vendido na comanda sai do estoque automaticamente."));
+    CAT.pr.forEach(function(x){var r=el("div","it");var nm=el("span",null,x.name+" · "+R(x.price));r.appendChild(nm);var q=el("b",null,x.stock+" un.");if(x.stock<=2)q.style.color="var(--rd)";r.appendChild(q);
+      function set(n){if(n<0)return;if(DEMO){x.stock=n;produtos();return}sb.from("products").update({stock:n}).eq("id",x.id).then(function(z){if(z.error)alert("Não foi possível: "+z.error.message);produtos()})}
+      var m=el("button","mini","−1");m.setAttribute("aria-label","Tirar 1 de "+x.name);m.onclick=function(){set(x.stock-1)};var p=el("button","mini","+1");p.setAttribute("aria-label","Colocar 1 em "+x.name);p.onclick=function(){set(x.stock+1)};
+      var rp=el("button","mini","Repor");rp.onclick=function(){var v=prompt("Quantas unidades de "+x.name+" chegaram?","1");if(v&&+v>0)set(x.stock+Math.floor(+v))};[m,p,rp].forEach(function(z){r.appendChild(z)});sc.appendChild(r)});
+    box.appendChild(sc);
+    var nf=el("div","sec");nf.appendChild(el("h3",null,"Novo produto"));var n=el("input");n.placeholder="Nome";n.setAttribute("aria-label","Nome do produto");var pr=el("input");pr.type="number";pr.step="0.01";pr.placeholder="Preço";pr.setAttribute("aria-label","Preço");var st=el("input");st.type="number";st.placeholder="Estoque inicial";st.setAttribute("aria-label","Estoque inicial");
+    [n,pr,st].forEach(function(z){z.style.marginBottom="8px";nf.appendChild(z)});var b=el("button","btn gr","Cadastrar");nf.appendChild(b);
+    b.onclick=function(){if(n.value.trim().length<2||!(+pr.value>0)){alert("Digite o nome e o preço.");return}
+      if(DEMO){CAT.pr.push({id:Date.now(),name:n.value.trim(),price:+pr.value,stock:Math.max(0,Math.floor(+st.value||0))});produtos();return}
+      sb.from("products").insert({name:n.value.trim(),price:+pr.value,stock:Math.max(0,Math.floor(+st.value||0))}).then(function(z){if(z.error)alert("Não foi possível: "+z.error.message);produtos()})};
+    box.appendChild(nf)})}
+
+init();
+if("serviceWorker" in navigator&&location.protocol=="https:")navigator.serviceWorker.register("sw.js").catch(function(){});
+</script>
+</body>
+</html>
